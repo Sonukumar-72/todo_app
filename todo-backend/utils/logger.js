@@ -1,5 +1,14 @@
 const winston = require('winston');
 
+const transports = [
+  new winston.transports.File({ filename: 'combined.log' }),
+];
+
+// Add console transport only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  transports.push(new winston.transports.Console());
+}
+
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
@@ -7,12 +16,7 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: 'user-service' },
-  transports: [
-    // Write logs to the console
-    new winston.transports.Console(),
-    // Write logs to a file
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
+  transports,
 });
 
 module.exports = logger;

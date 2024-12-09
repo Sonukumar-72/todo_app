@@ -1,0 +1,155 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e9ecef;
+    color: #343a40;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container for the Todo app */
+.todo-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    padding: 20px;
+    transition: transform 0.3s;
+}
+
+.todo-container:hover {
+    transform: scale(1.02);
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #007BFF;
+    font-size: 24px;
+}
+
+/* Input field */
+input[type="text"] {
+    width: calc(100% - 40px);
+    padding: 12px;
+    border: 2px solid #007BFF;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
+}
+
+/* Add button */
+.add-btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-left: 10px;
+}
+
+.add-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Todo list */
+.todo-list {
+    list-style: none;
+    margin-top: 20px;
+    padding: 0;
+}
+
+.todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+    margin-bottom: 10px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.todo-item:hover {
+    background-color: #e2e6ea;
+    transform: translateY(-2px);
+}
+
+/* Checkbox */
+.todo-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Delete button */
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Completed tasks */
+.completed {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+/* Animation for adding/removing items */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.todo-item {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+    .todo-container {
+        width: 90%;
+    }
+
+    input[type="text"] {
+        width: calc(100% - 30px);
+    }
+
+    .add-btn {
+        padding: 10px 12px;
+    }
+
+    .delete-btn {
+        padding: 4px 8px;
+    }
+}

@@ -1,96 +1,82 @@
-const todoController = require("../../controllers/todoController");
+const { getTodos, addTodo } = require("../../controllers/todoController");
+const Todo = require("../../models/todoModel");
 
-// Mocking the Todo model
-jest.mock("../../models/todoModel.js", () => {
-  const mockSave = jest.fn();
-  const mockFind = jest.fn();
-  const Todo = jest.fn().mockImplementation(() => ({
-    save: mockSave,
-  }));
-  Todo.find = mockFind; // Adding static method mock
-  return Todo;
-});
+jest.mock("../../models/todoModel");
+//jest.mock("../../models/todoModel", () => ({
+  //create: jest.fn(),
+  //find: jest.fn(),
+//}));
+
 
 describe("Todo Controller Tests", () => {
+  let req, res;
+
+  beforeEach(() => {
+    req = {};
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    jest.clearAllMocks(); // Clear previous mocks before each test
+  });
+
   describe("getTodos", () => {
-    it("should return a list of todos if everything goes right", async () => {
-      const mockTodos = [{ id: 1, title: "Sample Todo", completed: false }];
-      const Todo = require("../../models/todoModel.js");
-      Todo.find.mockResolvedValue(mockTodos); // Mock resolved value
+    it("should fetch all todos", async () => {
+      const todos = [{ id: 1, title: "Sample Todo", completed: false }];
+      Todo.find.mockResolvedValue(todos); // Mock successful response
 
-      const req = {};
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      await getTodos(req, res);
 
-      await todoController.getTodos(req, res);
-
-      // Assertions
       expect(Todo.find).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockTodos);
+      expect(res.json).toHaveBeenCalledWith(todos);
     });
 
     it("should handle errors if something goes wrong", async () => {
-      const errorMessage = "Something went wrong, please try again later.";
-      const Todo = require("../../models/todoModel.js");
-      Todo.find.mockRejectedValue(new Error(errorMessage)); // Mock rejected value
+      const errorMessage = "Database error";
+      Todo.find.mockRejectedValue(new Error(errorMessage)); // Mock failure
 
-      const req = {};
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      await getTodos(req, res);
 
-      await todoController.getTodos(req, res);
-
-      // Assertions
       expect(Todo.find).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Something went wrong, please try again later.",
+        error: errorMessage,
+      });
     });
   });
 
   describe("addTodo", () => {
     it("should create a new Todo", async () => {
-      const newTodo = { _id: "1", title: "New Todo" };
-      const Todo = require("../../models/todoModel.js");
-      const todoInstance = new Todo();
-      todoInstance.save.mockResolvedValue(newTodo); // Mock resolved value for save method
+      req.body = { todo: "New Todo" };
+      const newTodo = { _id: "123", title: "New Todo" };
 
-      const req = { body: { title: "New Todo" } }; // Mocking request body
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      Todo.mockImplementation(() => ({
+        save: jest.fn().mockResolvedValue(newTodo), // Mock save method
+      }));
 
-      await todoController.addTodo(req, res);
+      await addTodo(req, res);
 
-      // Assertions
-      expect(todoInstance.save).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201); // Assuming status code for resource creation is 201
+      expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(newTodo);
     });
 
     it("should handle errors while creating a new Todo", async () => {
-      const errorMessage = "Failed to add the todo, please try again.";
-      const Todo = require("../../models/todoModel.js");
-      const todoInstance = new Todo();
-      todoInstance.save.mockRejectedValue(new Error(errorMessage)); // Mock rejected value for save method
+      req.body = { todo: "New Todo" };
+      const errorMessage = "Database save error";
 
-      const req = { body: { title: "New Todo" } }; // Mocking request body
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      Todo.mockImplementation(() => ({
+        save: jest.fn().mockRejectedValue(new Error(errorMessage)),
+      }));
 
-      await todoController.addTodo(req, res);
+      await addTodo(req, res);
 
-      // Assertions
-      expect(todoInstance.save).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500); // Assuming failure status code is 500
-      expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Failed to add the todo, please try again.",
+        error: errorMessage,
+      });
     });
   });
 });
